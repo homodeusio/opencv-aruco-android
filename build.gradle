@@ -88,20 +88,6 @@
 //   }
 //
 
-apply plugin: 'com.android.library'
-
-def openCVersionName = "4.3.0"
-def openCVersionCode = ((4 * 100 + 3) * 100 + 0) * 10 + 0
-
-println "OpenCV: " +openCVersionName + " " + project.buildscript.sourceFile
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
-}
-
 buildscript {
     ext {
         buildToolsVersion = "28.0.3"
@@ -116,6 +102,42 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.6.3'
+    }
+}
+
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+    id "maven-publish"
+}
+
+apply plugin: 'com.android.library'
+
+def openCVersionName = "4.3.0"
+def openCVersionCode = ((4 * 100 + 3) * 100 + 0) * 10 + 0
+
+println "OpenCV: " +openCVersionName + " " + project.buildscript.sourceFile
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+bintray {
+    user =
+    key = 
+    configurations = ['archives']
+    pkg {
+        userOrg = "homodeusio"
+        repo = "opencv-aruco-android"
+        name = "opencv-aruco-android"
+        licenses = ["BSD 3-Clause"]
+        publish = true
+        version {
+            name = '4.3.0'
+        }
+        labels = ['aar', 'android']
     }
 }
 
