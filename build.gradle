@@ -26,14 +26,45 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
+def openCVersionName = "4.3.0"
+def openCVersionCode = ((4 * 100 + 3) * 100 + 0) * 10 + 0
+
+println "OpenCV: " +openCVersionName + " " + project.buildscript.sourceFile
+
 android {
     compileSdkVersion 28
     buildToolsVersion "28.0.3"
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+
+        versionCode openCVersionCode
+        versionName openCVersionName
+
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared"
+                targets "opencv_jni_shared"
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            packagingOptions {
+                doNotStrip '**/*.so'  // controlled by OpenCV CMake scripts
+            }
+        }
+        release {
+            packagingOptions {
+                doNotStrip '**/*.so'  // controlled by OpenCV CMake scripts
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     sourceSets {
         main {
@@ -42,22 +73,20 @@ android {
             renderscript.srcDirs = ['java/src']
             res.srcDirs = ['java/res']
             aidl.srcDirs = ['java/src/org/opencv/engine']
-            jniLibs.srcDirs = ['native/jni']
+            jniLibs.srcDirs = ['native/jniLibs']
         }
     }
-    buildTypes {
-        release {
-            minifyEnabled false
+    externalNativeBuild {
+        cmake {
+            path (project.projectDir.toString() + '/libcxx_helper/CMakeLists.txt')
         }
-    }
-    productFlavors {
     }
 }
 
 bintray {
     user = System.getenv('BINTRAY_USERNAME')
     key = System.getenv('BINTRAY_API_KEY')
-
+    override = true
     configurations = ['archives']
     pkg {
         userOrg = "homodeusio"
